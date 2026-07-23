@@ -6,6 +6,9 @@
 <script src="./support.js"></script>
 </head>
 <body>
+<div id="lr-cursor"></div>
+<canvas id="lr-pulse"></canvas>
+<div id="lr-progress"></div>
 <x-dc>
 <helmet>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -25,6 +28,10 @@
   @keyframes ovFade{from{opacity:0}to{opacity:1}}
   @keyframes modalUp{from{transform:translateY(26px);opacity:0}to{transform:translateY(0);opacity:1}}
   @keyframes spinGlow{from{transform:translate(-50%,-50%) rotate(0deg)}to{transform:translate(-50%,-50%) rotate(-360deg)}}
+  body{cursor:none}
+  #lr-cursor{width:7px;height:7px;border-radius:50%;position:fixed;pointer-events:none;z-index:9999;transform:translate(-50%,-50%);left:-100px;top:-100px;transition:width .15s,height .15s,opacity .15s}
+  #lr-pulse{position:fixed;inset:0;pointer-events:none;z-index:9998;width:100%;height:100%}
+  #lr-progress{position:fixed;top:0;left:0;height:3px;width:0%;z-index:10000;transition:width .08s linear}
 </style>
 </helmet>
 <div style="min-height:100vh;background:{{ bg }};color:{{ text }};font-family:{{ fontBody }},system-ui,sans-serif;transition:background .35s ease,color .35s ease">
@@ -142,6 +149,11 @@
             <span style="font-family:{{ fontMono }},monospace;font-size:9.5px;letter-spacing:1.5px;text-transform:uppercase;color:{{ active.accent }}">{{ active.label }}</span>
           </div>
         </button>
+        <div style="display:flex;align-self:stretch">
+          <sc-for list="{{ profileTabs }}" as="pt" hint-placeholder-count="4">
+            <button onClick="{{ pt.onClick }}" style="width:120px;height:100%;padding:0 14px;border:none;border-bottom:2px solid {{ pt.borderColor }};background:transparent;color:{{ pt.tabColor }};cursor:pointer;font-family:{{ fontMono }},monospace;font-size:11px;letter-spacing:1px;text-transform:uppercase;transition:color .2s,border-bottom-color .2s;white-space:nowrap;text-align:center" style-hover="color:{{ pt.accent }};border-bottom-color:{{ pt.accent }}">{{ pt.label }}</button>
+          </sc-for>
+        </div>
         <div style="display:flex;gap:9px;flex:none;align-items:center">
           <button onClick="{{ openBlog }}" style="height:38px;padding:0 14px;border-radius:10px;border:1px solid {{ line }};background:transparent;color:{{ text2 }};cursor:pointer;font-family:{{ fontMono }},monospace;font-size:11px;letter-spacing:1px;transition:all .2s" style-hover="border-color:{{ active.accent }};color:{{ active.accent }}">{{ t.blogT }}</button>
           <button onClick="{{ toggleTheme }}" style="width:38px;height:38px;border-radius:10px;border:1px solid {{ line }};background:transparent;color:{{ text2 }};cursor:pointer;font-size:15px;display:flex;align-items:center;justify-content:center;transition:all .2s" style-hover="border-color:{{ active.accent }};color:{{ text }}">{{ themeIcon }}</button>
@@ -270,7 +282,7 @@
       <h2 style="font-family:{{ active.head }},sans-serif;font-weight:600;font-size:clamp(26px,3.4vw,34px);letter-spacing:-.5px;margin:10px 0 0;color:{{ text }}">{{ t.toolstackT }}</h2>
       <div style="margin-top:28px;display:flex;flex-wrap:wrap;justify-content:center;gap:14px">
         <sc-for list="{{ toolItems }}" as="it" hint-placeholder-count="12">
-          <div style="width:155px;display:flex;flex-direction:column;align-items:center;gap:13px;background:{{ cardBg }};border:1px solid {{ active.borderDim }};border-radius:14px;padding:24px 12px">
+          <div style="width:155px;display:flex;flex-direction:column;align-items:center;gap:13px;background:{{ cardBg }};border:1px solid {{ active.borderDim }};border-radius:14px;padding:24px 12px;transition:transform .25s ease,border-color .25s ease" style-hover="border-color:{{ active.accent }};transform:translateY(-4px)">
             <div style="position:relative;width:80px;height:80px;border-radius:50%;background:{{ it.ring }};display:flex;align-items:center;justify-content:center">
               <div style="position:relative;width:62px;height:62px;border-radius:50%;background:#fff;display:flex;align-items:center;justify-content:center;overflow:hidden">
                 <sc-if value="{{ it.hasIcon }}" hint-placeholder-val="{{ false }}">
@@ -609,6 +621,7 @@ class Component extends DCLogic {
     const cols = (a) => ({ accent: a, soft: mix(a, 13), softer: mix(a, 8), border: mix(a, 42), borderDim: mix(a, 24), glow: mix(a, 26) });
     const L = (o) => o == null ? '' : (typeof o === 'string' ? o : (o[lang] != null ? o[lang] : o.en));
     const order = ['ai', 'estimator', 'steel', 'bim'];
+    const profileTabs = order.map(k => { const pr = this.PROFILES[k]; const isAct = view === k; return { label: pr.label, accent: pr.accent, borderColor: isAct ? pr.accent : 'transparent', tabColor: isAct ? pr.accent : P.text3, onClick: () => this.openProfile(k) }; });
 
     const cards = order.map((k, i) => {
       const pr = this.PROFILES[k];
@@ -705,7 +718,7 @@ class Component extends DCLogic {
       toggleTheme: () => this.toggleTheme(), toggleLang: () => this.toggleLang(), goHome: () => this.goHome(), openBlog: () => this.openBlog(),
       scrollToProjects: () => this.scrollTo('profile-projects'), scrollToContact: () => this.scrollTo('profile-contact'),
       closeModal: () => this.closeModal(), stop: (e) => e.stopPropagation(), imgErr: (e) => { e.currentTarget.style.display = 'none'; },
-      cards, stats, active, projectList, hero, modal,
+      cards, stats, active, projectList, hero, modal, profileTabs,
       ctas: this.SOCIALS.slice(0, 3), socials: this.SOCIALS,
       heroIsAI: view === 'ai', heroIsEst: view === 'estimator', heroIsSteel: view === 'steel', heroIsBim: view === 'bim',
       profStats, aboutText, heroSub, heroBg, stack, toolItems, exp, edu, langs, soft, blog, blogModal, showBlogModal, contactBtns, contact,
@@ -974,6 +987,65 @@ class Component extends DCLogic {
     };
   }
 }
+</script>
+<script>
+(function(){
+  const dot = document.getElementById('lr-cursor');
+  const canvas = document.getElementById('lr-pulse');
+  const bar = document.getElementById('lr-progress');
+  const ctx = canvas.getContext('2d');
+  let mx=0,my=0,rings=[],timer=0,hover=false;
+
+  function resize(){ canvas.width=window.innerWidth; canvas.height=window.innerHeight; }
+  resize(); window.addEventListener('resize',resize);
+
+  document.addEventListener('mousemove',e=>{
+    mx=e.clientX; my=e.clientY;
+    dot.style.left=mx+'px'; dot.style.top=my+'px';
+  });
+
+  document.addEventListener('mouseover',e=>{
+    hover=!!(e.target.closest('button,a,[onClick],[style-hover]'));
+    dot.style.width=hover?'14px':'7px';
+    dot.style.height=hover?'14px':'7px';
+    dot.style.opacity=hover?'.5':'1';
+  });
+
+  function getAccent(){
+    const tl=document.querySelector('[style*="height:3px"]');
+    return tl ? tl.style.background : 'rgba(255,255,255,0.7)';
+  }
+
+  function draw(){
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    const speed=hover?0.06:0.025;
+    timer+=speed;
+    if(timer>=1){ timer=0; rings.push({r:5,a:0.6}); }
+    const color=getAccent();
+    rings=rings.filter(r=>{
+      r.r+=hover?3:1.8; r.a-=hover?0.03:0.018;
+      if(r.a<=0) return false;
+      ctx.beginPath(); ctx.arc(mx,my,r.r,0,Math.PI*2);
+      ctx.strokeStyle=color.startsWith('linear')?`rgba(255,255,255,${r.a})`:`rgba(${hexToRgb(color)},${r.a})`;
+      ctx.lineWidth=1; ctx.stroke();
+      return true;
+    });
+    requestAnimationFrame(draw);
+  }
+
+  function hexToRgb(c){
+    const m=c.match(/[\da-f]{2}/gi);
+    return m ? m.slice(0,3).map(x=>parseInt(x,16)).join(',') : '255,255,255';
+  }
+
+  draw();
+
+  window.addEventListener('scroll',()=>{
+    const pct=document.body.scrollTop/(document.body.scrollHeight-window.innerHeight)*100;
+    bar.style.width=pct+'%';
+    bar.style.background=getAccent();
+  },{ passive:true });
+})();
 </script>
 </body>
 </html>

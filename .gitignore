@@ -1,0 +1,31 @@
+# ── Personal identity documents ───────────────────────────────────────────────
+/ID Leonardo Raudales.jpeg
+/ID Leonardo Raudales.pdf
+/RTN Leonardo Raudales.pdf
+/Profile.pdf
+
+# ── Root-level images (WhatsApp, ID photos, random exports) ───────────────────
+/*.jpeg
+/*.jpg
+
+# ── Office source files ────────────────────────────────────────────────────────
+/*.docx
+
+# ── Archives and image dumps ──────────────────────────────────────────────────
+/*.zip
+/Portfolio_BIM_Images/
+
+# ── Personal images folder ────────────────────────────────────────────────────
+/Imagenes/
+
+# ── Reference / working folders (not for deployment) ──────────────────────────
+/Revisar/
+
+# ── Misc working PDFs ─────────────────────────────────────────────────────────
+/Step by Step - Portfolio Engineering.pdf
+
+# ── OS / editor junk ──────────────────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+desktop.ini
+*.swp
